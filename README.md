@@ -1,4 +1,4 @@
-# File Server
+# LocalDrop
 
 A modern, feature-rich file server with a beautiful web interface. This application allows you to easily share files and folders across your local network with drag-and-drop support, dark mode, and more.
 
@@ -14,11 +14,11 @@ A modern, feature-rich file server with a beautiful web interface. This applicat
 
 ## Screenshots
 
-[Consider adding screenshots of your application here]
+[adding screenshots later]
 
 ## Requirements
 
-- Python 3.x
+- Python 3.9
 - Required Python packages (see `requirements.txt`)
 - Modern web browser with JavaScript enabled
 
@@ -26,7 +26,7 @@ A modern, feature-rich file server with a beautiful web interface. This applicat
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/yourusername/file-server.git
+   git clone https://github.com/AdityaAdaki21/file-server.git
    cd file-server
    ```
 
@@ -76,11 +76,3 @@ The application is built with:
 4. Push to the branch (`git push origin feature/AmazingFeature`)
 5. Open a Pull Request
 
-## License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## Acknowledgments
-
-- Bootstrap for the UI components
-- Font Awesome for the icons
