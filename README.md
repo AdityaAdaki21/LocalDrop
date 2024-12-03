@@ -25,7 +25,7 @@ A modern, feature-rich file sharing server with a beautiful web interface. Share
 
 ### Option 1: Download and Run (Recommended)
 
-1. Download the latest `LocalDrop.exe` from the dist folder
+1. Download the latest `LocalDrop.exe` from the [Releases](https://github.com/AdityaAdaki21/LocalDrop/releases) page
 
 2. Using the Executable:
    - **Standalone Use**: 
@@ -46,7 +46,7 @@ A modern, feature-rich file sharing server with a beautiful web interface. Share
    - The shared folder will be the one containing the exe (or specified in shortcut)
 
 4. Security Notes:
-   - Only run LocalDrop on home network (trusted networks )
+   - Only run LocalDrop on home network (trusted networks)
    - Anyone on your network can access the shared folder
    - Close the console window to stop sharing
 
