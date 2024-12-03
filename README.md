@@ -1,78 +1,167 @@
-# LocalDrop
+# LocalDrop 🚀
 
-A modern, feature-rich file server with a beautiful web interface. This application allows you to easily share files and folders across your local network with drag-and-drop support, dark mode, and more.
+A modern, feature-rich file sharing server with a beautiful web interface. Share files and folders across your local network with drag-and-drop support, dark mode, and more. Perfect for quick file transfers between devices on your network.
 
-## Features
+## ✨ Features
 
-- 📁 Browse files and folders with an intuitive interface
-- ⬆️ Upload files with drag-and-drop support
-- ⬇️ Download files and folders as ZIP
-- 🌓 Light/Dark theme support
-- 📊 View detailed file and directory information
-- 🔄 Real-time updates
-- 🌐 Access from any device on your local network
+- 🎯 **Simple Setup**: Single executable, no installation required
+- 📱 **Responsive Design**: Works on all devices and screen sizes
+- 🌓 **Dark/Light Theme**: Easy on the eyes, day or night
+- ⚡ **Fast Transfers**: Direct device-to-device file sharing
+- 🔍 **File Management**:
+  - Browse files and folders with intuitive navigation
+  - Upload files with drag-and-drop support
+  - Download files and folders as ZIP
+  - View detailed file/folder information
+  - Real-time updates
+- 🔒 **Security**: Basic path traversal protection
+- 🌐 **Network Access**: Share files with any device on your local network
 
-## Screenshots
+## 🖥️ Screenshots
 
-[adding screenshots later]
+[Coming Soon]
 
-## Requirements
+## 🚀 Quick Start
 
-- Python 3.7
-- Required Python packages (see `requirements.txt`)
-- Modern web browser with JavaScript enabled
+### Option 1: Download and Run (Recommended)
 
-## Setup
+1. Download the latest `LocalDrop.exe` from the dist folder
 
-1. Clone the repository:
-   ```bash
-   git clone https://github.com/AdityaAdaki21/file-server.git
-   cd file-server
+2. Using the Executable:
+   - **Standalone Use**: 
+     - Place `LocalDrop.exe` in any folder you want to share
+     - Double-click to run - it will share the folder it's placed in
+   
+   - **Creating a Shortcut** (Recommended):
+     - Right-click `LocalDrop.exe` → Create Shortcut
+     - Move the shortcut to your desktop/preferred location
+     - Right-click shortcut → Properties
+     - Set "Start in" to your preferred share folder
+     - Now you can run LocalDrop from anywhere while sharing your chosen folder
+
+3. When you run LocalDrop:
+   - A console window will open showing the server status
+   - Your default browser will automatically open
+   - Other devices can connect using the displayed network URL
+   - The shared folder will be the one containing the exe (or specified in shortcut)
+
+4. Security Notes:
+   - Only run LocalDrop on trusted networks (like your home network)
+   - Anyone on your network can access the shared folder
+   - Close the console window to stop sharing
+
+### Common Use Cases
+
+1. **Quick File Sharing**:
+   ```
+   Documents/
+   ├── LocalDrop.exe     # Place exe here
+   └── Files_to_share/   # Files you want to share
    ```
 
-2. Install the required packages:
-   ```bash
-   pip install -r requirements.txt
+2. **Desktop Shortcut**:
+   ```
+   C:/Users/YourName/Desktop/
+   └── LocalDrop.lnk     # Shortcut pointing to shared folder
    ```
 
-3. Run the server:
-   ```bash
-   python app.py
+3. **Portable Drive**:
+   ```
+   E:/                   # USB Drive
+   ├── LocalDrop.exe     # Run from drive
+   └── Shared_Files/     # Files on drive
    ```
 
-4. Access the file server:
-   - Local access: `http://localhost:8000`
-   - Network access: `http://<your-ip-address>:8000`
+### Option 2: Run from Source
 
-## Usage
+#### Prerequisites
+- Python 3.7 or higher
+- pip (Python package manager)
 
-### Basic Navigation
-- Click on folders to navigate into them
-- Use the breadcrumb navigation to go back
-- Click the home icon to return to the root directory
+```bash
+# 1. Clone the repository
+git clone https://github.com/AdityaAdaki21/LocalDrop.git
+cd LocalDrop
+
+# 2. Install dependencies
+pip install -r requirements.txt
+
+# 3. Run the application
+python LocalDrop.py
+```
+
+## 📖 Usage Guide
+
+### Starting the Server
+
+1. Run `LocalDrop.exe` or `python LocalDrop.py`
+2. The server will start and display:
+   - Local URL (http://localhost:8000)
+   - Network URL (http://your-ip:8000)
+3. Your default browser will open automatically
 
 ### File Operations
-- **Upload**: Drag and drop files onto the page or click the upload button
-- **Download**: Click the download icon on any file
-- **Download Folder**: Use the context menu (⋮) to download a folder as ZIP
-- **View Info**: Click the context menu (⋮) and select "Info" to view file/folder details
+
+#### Uploading Files
+- **Drag & Drop**: Drag files directly into the browser window
+- **Upload Button**: Click the upload button to select files
+
+#### Downloading Files
+- **Single File**: Click the download icon on any file
+- **Folders**: Use the menu (⋮) to download folder as ZIP
+
+#### Navigation
+- Click folders to open them
+- Use the breadcrumb navigation to go back
+- Click the home icon to return to root
+
+#### File Information
+1. Click the menu icon (⋮) on any file/folder
+2. Select "Info" to view details:
+   - Size
+   - Creation date
+   - Modification date
+   - File count (for folders)
 
 ### Theme Switching
-Click the moon/sun icon in the top-right corner to switch between light and dark themes.
+- Click the moon/sun icon in the top-right corner
+- Theme preference is saved automatically
 
-## Development
+### Server Commands
+- Type `help` to view available commands
+- Use `exit` or `quit` to stop the server
+- Press `Ctrl+C` to force quit
 
-The application is built with:
-- Backend: Python with `http.server`
-- Frontend: HTML5, CSS3, JavaScript
-- UI Framework: Bootstrap 5
-- Icons: Font Awesome
+## 🛠️ Development
 
-## Contributing
+### Building from Source
+
+```bash
+# Install PyInstaller
+pip install pyinstaller
+
+# Build the executable
+python build_exe.py
+```
+
+The executable will be created in the `dist` directory.
+
+### Project Structure
+```
+LocalDrop/
+├── app.py          # Core server implementation
+├── LocalDrop.py    # Main application entry point
+├── index.html      # Web interface
+├── build_exe.py    # Build script
+└── requirements.txt
+```
+
+## 🤝 Contributing
+
+Contributions are welcome! Here's how you can help:
 
 1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
+2. Create a feature branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your changes (`git commit -m 'Add AmazingFeature'`)
 4. Push to the branch (`git push origin feature/AmazingFeature`)
 5. Open a Pull Request
-

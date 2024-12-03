@@ -10,6 +10,7 @@ import re
 import zipfile
 import io
 import datetime
+import threading
 
 # Configure logging
 logging.basicConfig(
@@ -38,6 +39,10 @@ def is_safe_path(base_path, requested_path):
     return requested_path.startswith(base_path)
 
 class FileServerHandler(http.server.SimpleHTTPRequestHandler):
+    def __init__(self, *args, **kwargs):
+        self.index_path = kwargs.pop('index_path', 'index.html')
+        super().__init__(*args, **kwargs)
+
     def get_folder_name(self):
         return os.path.basename(os.getcwd()) or "Root"
 
@@ -193,8 +198,8 @@ class FileServerHandler(http.server.SimpleHTTPRequestHandler):
                 self.send_header('Content-Type', 'text/html')
                 self.end_headers()
                 
-                # Read the index.html file
-                with open('index.html', 'rb') as f:
+                # Read the index.html file using the provided path
+                with open(self.index_path, 'rb') as f:
                     html_content = f.read().decode('utf-8')
                     # Replace the placeholder with actual folder name
                     folder_name = self.get_folder_name()
@@ -263,19 +268,30 @@ class FileServerHandler(http.server.SimpleHTTPRequestHandler):
                 self.send_error(500, str(e))
             return
 
-def run_server(port=8000):
+def run_server(port=8000, index_path='index.html'):
     try:
         # Use ThreadingTCPServer instead of TCPServer
         ThreadingTCPServer.allow_reuse_address = True
-        handler = FileServerHandler
+        
+        # Create handler class with index_path
+        handler = lambda *args: FileServerHandler(*args, index_path=index_path)
+        
         server_ip = get_local_ip()
-        with ThreadingTCPServer(("", port), handler) as httpd:
-            logger.info(f"Server started at port {port}")
-            logger.info(f"Server IP address: {server_ip}")
-            logger.info(f"Access locally at: http://localhost:{port}")
-            logger.info(f"Access from other devices at: http://{server_ip}:{port}")
-            logger.info("Server is ready to handle multiple connections")
-            httpd.serve_forever()
+        httpd = ThreadingTCPServer(("", port), handler)
+        
+        logger.info(f"Server started at port {port}")
+        logger.info(f"Server IP address: {server_ip}")
+        logger.info(f"Access locally at: http://localhost:{port}")
+        logger.info(f"Access from other devices at: http://{server_ip}:{port}")
+        logger.info("Server is ready to handle multiple connections")
+        
+        # Start server in a separate thread
+        server_thread = threading.Thread(target=httpd.serve_forever)
+        server_thread.daemon = True
+        server_thread.start()
+        
+        return httpd
+        
     except Exception as e:
         logger.error(f"Server error: {str(e)}")
         raise
