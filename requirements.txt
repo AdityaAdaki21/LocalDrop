@@ -1,0 +1,7 @@
+# Core server requirements
+socketserver
+logging
+urllib3>=2.0.0
+
+# For handling file operations
+zipfile38>=0.0.4 

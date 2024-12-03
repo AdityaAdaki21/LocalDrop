@@ -1,0 +1,805 @@
+<!DOCTYPE html>
+<html data-theme="light">
+<head>
+    <title>File Server</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root[data-theme="light"] {
+            --primary-color: #6366f1;
+            --secondary-color: #4f46e5;
+            --background-color: #f8fafc;
+            --card-color: rgba(255, 255, 255, 0.8);
+            --glass-bg: rgba(255, 255, 255, 0.7);
+            --hover-color: #f1f5f9;
+            --text-color: #1e293b;
+            --text-secondary: #64748b;
+            --border-color: rgba(255, 255, 255, 0.3);
+            --glass-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
+            --glass-border: 1px solid rgba(255, 255, 255, 0.18);
+        }
+
+        :root[data-theme="dark"] {
+            --primary-color: #818cf8;
+            --secondary-color: #6366f1;
+            --background-color: #0f172a;
+            --card-color: rgba(30, 41, 59, 0.8);
+            --glass-bg: rgba(30, 41, 59, 0.7);
+            --hover-color: #334155;
+            --text-color: #f8fafc;
+            --text-secondary: #94a3b8;
+            --border-color: rgba(255, 255, 255, 0.1);
+            --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+            --glass-border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background-color: var(--background-color);
+            background-image: 
+                radial-gradient(at 40% 20%, rgba(99, 102, 241, 0.15) 0px, transparent 50%),
+                radial-gradient(at 80% 0%, rgba(79, 70, 229, 0.15) 0px, transparent 50%),
+                radial-gradient(at 0% 50%, rgba(129, 140, 248, 0.15) 0px, transparent 50%);
+            color: var(--text-color);
+            min-height: 100vh;
+        }
+
+        .theme-switch {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+            background: var(--glass-bg);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            border: var(--glass-border);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: var(--glass-shadow);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            background: var(--glass-bg);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            color: var(--text-color);
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            border: var(--glass-border);
+            box-shadow: var(--glass-shadow);
+        }
+
+        .breadcrumb {
+            background: var(--glass-bg);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            border: var(--glass-border);
+            box-shadow: var(--glass-shadow);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .breadcrumb span {
+            color: var(--primary-color);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .breadcrumb i.fa-chevron-right {
+            color: var(--text-secondary);
+            font-size: 0.8em;
+            margin: 0 4px;
+        }
+
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 15px;
+            padding: 10px 0;
+        }
+
+        .item {
+            background: var(--glass-bg);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            border-radius: 8px;
+            padding: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: var(--glass-border);
+            box-shadow: var(--glass-shadow);
+        }
+
+        .item:hover {
+            transform: translateY(-2px);
+            background: var(--glass-bg);
+            box-shadow: 0 8px 32px 0 rgba(99, 102, 241, 0.2);
+        }
+
+        .item i {
+            font-size: 2em;
+            margin-bottom: 10px;
+            color: var(--primary-color);
+        }
+
+        .item-name {
+            color: var(--text-color);
+            font-size: 0.9em;
+            word-break: break-word;
+        }
+
+        .size {
+            font-size: 0.8em;
+            color: var(--text-secondary);
+        }
+
+        .download-btn {
+            opacity: 0;
+            transition: opacity 0.2s;
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: transparent;
+            border: none;
+            color: var(--primary-color);
+            padding: 5px;
+        }
+
+        .item:hover .download-btn {
+            opacity: 1;
+        }
+
+        .upload-container {
+            background: var(--glass-bg);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            border-radius: 8px;
+            padding: 20px;
+            text-align: center;
+            margin-bottom: 20px;
+            border: var(--glass-border);
+            box-shadow: var(--glass-shadow);
+        }
+
+        .upload-button {
+            background: linear-gradient(135deg, 
+                rgba(99, 102, 241, 0.9),
+                rgba(79, 70, 229, 0.9));
+            backdrop-filter: blur(4px);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 6px;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 4px 15px rgba(99, 102, 241, 0.2);
+        }
+
+        .upload-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(99, 102, 241, 0.3);
+        }
+
+        .progress-item {
+            background: var(--glass-bg);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            border: 1px solid var(--border-color);
+            padding: 10px;
+            margin: 5px 0;
+            border-radius: 4px;
+            transition: all 0.3s ease;
+        }
+
+        .progress-item.success {
+            border-left: 4px solid #10b981;
+        }
+
+        .progress-item.error {
+            border-left: 4px solid #ef4444;
+        }
+
+        .drop-zone-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(99, 102, 241, 0.1);
+            backdrop-filter: blur(8px);
+            border: 3px dashed var(--primary-color);
+            z-index: 9999;
+            pointer-events: none;
+        }
+
+        .drop-zone-overlay.active {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .drop-zone-message {
+            background: var(--glass-bg);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: var(--glass-border);
+            box-shadow: var(--glass-shadow);
+            font-size: 1.5em;
+            color: var(--primary-color);
+            padding: 20px 40px;
+            border-radius: 10px;
+        }
+
+        /* Add smooth scrollbar for webkit browsers */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--glass-bg);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--primary-color);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--secondary-color);
+        }
+
+        /* Add context menu styles */
+        .context-menu {
+            position: fixed;
+            background: var(--glass-bg);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            border: var(--glass-border);
+            border-radius: 8px;
+            box-shadow: var(--glass-shadow);
+            padding: 5px 0;
+            z-index: 1000;
+            min-width: 150px;
+            max-width: 250px;
+            overflow: hidden;
+        }
+
+        .context-menu-item {
+            padding: 8px 15px;
+            cursor: pointer;
+            color: var(--text-color);
+            transition: background-color 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .context-menu-item:hover {
+            background-color: var(--hover-color);
+        }
+
+        .item-menu {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            opacity: 0;
+            transition: opacity 0.2s;
+            background: var(--card-color);
+            border: none;
+            color: var(--text-color);
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 2;
+        }
+
+        .item:hover .item-menu {
+            opacity: 1;
+        }
+
+        .info-modal {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: var(--glass-bg);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            padding: 20px;
+            border-radius: 10px;
+            border: var(--glass-border);
+            box-shadow: var(--glass-shadow);
+            z-index: 1001;
+            min-width: 300px;
+            max-width: 90%;
+        }
+
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(4px);
+            z-index: 1000;
+        }
+    </style>
+</head>
+<body>
+    <div class="theme-switch" onclick="toggleTheme()">
+        <i class="fas fa-moon"></i>
+    </div>
+    
+    <div class="container">
+        <div class="header">
+            <h1 class="h4 m-0">File Server</h1>
+        </div>
+        
+        <nav class="breadcrumb px-3 py-2 rounded mb-4" id="breadcrumb"></nav>
+        
+        <div class="upload-container mb-4">
+            <label for="fileInput" class="upload-button">
+                <i class="fas fa-upload me-2"></i>Upload Files
+            </label>
+            <input type="file" id="fileInput" multiple class="d-none">
+            <div id="uploadProgress" class="mt-3"></div>
+        </div>
+
+        <div class="grid-container" id="listing"></div>
+    </div>
+
+    <div class="drop-zone-overlay">
+        <div class="drop-zone-message">
+            <i class="fas fa-cloud-upload-alt me-2"></i>
+            Drop files here to upload
+        </div>
+    </div>
+
+    <div id="modalContainer"></div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Add this new function for theme switching
+        function toggleTheme() {
+            try {
+                const html = document.documentElement;
+                const currentTheme = html.getAttribute('data-theme');
+                const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+                html.setAttribute('data-theme', newTheme);
+                
+                const icon = document.querySelector('.theme-switch i');
+                icon.className = newTheme === 'light' ? 'fas fa-moon' : 'fas fa-sun';
+                
+                localStorage.setItem('theme', newTheme);
+            } catch (error) {
+                console.error('Error switching theme:', error);
+            }
+        }
+
+        // Set initial theme from localStorage
+        const savedTheme = localStorage.getItem('theme') || 'light';
+        document.documentElement.setAttribute('data-theme', savedTheme);
+        document.querySelector('.theme-switch i').className = 
+            savedTheme === 'light' ? 'fas fa-moon' : 'fas fa-sun';
+
+        // Modify the createItemElement function
+        function createItemElement(item, path) {
+            const div = document.createElement('div');
+            div.className = 'item position-relative text-center';
+            
+            const icon = item.is_dir ? 'fa-folder' : 'fa-file';
+            div.innerHTML = `
+                <i class="fas ${icon}"></i>
+                <div class="item-name">${item.name}</div>
+                ${!item.is_dir ? `<div class="size">${formatSize(item.size)}</div>` : ''}
+                <button class="item-menu" onclick="event.stopPropagation(); showItemMenu(event, '${item.name}', ${item.is_dir}, '${path}')">
+                    <i class="fas fa-ellipsis-v"></i>
+                </button>
+            `;
+
+            div.onclick = () => {
+                if (item.is_dir) {
+                    loadDirectory(path === '.' ? item.name : `${path}/${item.name}`);
+                }
+            };
+            
+            return div;
+        }
+
+        let currentPath = '.';
+
+        function formatSize(bytes) {
+            const sizes = ['B', 'KB', 'MB', 'GB'];
+            let i = 0;
+            while (bytes >= 1024 && i < sizes.length - 1) {
+                bytes /= 1024;
+                i++;
+            }
+            return `${bytes.toFixed(1)} ${sizes[i]}`;
+        }
+
+        function updateBreadcrumb(path) {
+            const breadcrumb = document.getElementById('breadcrumb');
+            const parts = path === '.' ? [] : path.split('/');
+            
+            breadcrumb.innerHTML = '<span onclick="loadDirectory(\'.\')"><i class="fas fa-home"></i><span>Home</span></span>';
+            
+            let currentPath = '';
+            parts.forEach((part, index) => {
+                currentPath += (index === 0 ? '' : '/') + part;
+                breadcrumb.innerHTML += `<i class="fas fa-chevron-right"></i><span onclick="loadDirectory('${currentPath}')">${part}</span>`;
+            });
+        }
+
+        function loadDirectory(path) {
+            currentPath = path;
+            updateBreadcrumb(path);
+            
+            const listing = document.getElementById('listing');
+            listing.innerHTML = `
+                <div class="text-center p-4">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                    <div class="mt-2 text-secondary">Loading contents...</div>
+                </div>
+            `;
+            
+            fetch(`/api/list${path === '.' ? '' : path}`)
+                .then(response => response.json())
+                .then(items => {
+                    listing.innerHTML = '';
+
+                    if (path !== '.') {
+                        const backItem = document.createElement('div');
+                        backItem.className = 'item folder';
+                        backItem.innerHTML = `
+                            <i class="fas fa-level-up-alt"></i>
+                            <div class="item-name">..</div>
+                        `;
+                        backItem.onclick = () => {
+                            const parentPath = path.split('/').slice(0, -1).join('/') || '.';
+                            loadDirectory(parentPath);
+                        };
+                        listing.appendChild(backItem);
+                    }
+
+                    items.sort((a, b) => {
+                        if (a.is_dir === b.is_dir) return a.name.localeCompare(b.name);
+                        return b.is_dir - a.is_dir;
+                    }).forEach(item => {
+                        const div = createItemElement(item, path);
+                        listing.appendChild(div);
+                    });
+                })
+                .catch(error => {
+                    console.error('Error loading directory:', error);
+                    listing.innerHTML = `
+                        <div style="color: red; text-align: center; padding: 20px;">
+                            <i class="fas fa-exclamation-circle"></i> Error loading directory
+                        </div>
+                    `;
+                });
+        }
+
+        function showContextMenu(e, item, path) {
+            const menu = document.createElement('div');
+            menu.className = 'context-menu';
+            menu.style.left = e.pageX + 'px';
+            menu.style.top = e.pageY + 'px';
+
+            const actions = [];
+            if (!item.is_dir) {
+                actions.push({
+                    label: '<i class="fas fa-download"></i> Download',
+                    action: () => {
+                        const link = document.createElement('a');
+                        link.href = path === '.' ? item.name : `${path}/${item.name}`;
+                        link.download = item.name;
+                        link.click();
+                    }
+                });
+            }
+
+            actions.forEach(action => {
+                const menuItem = document.createElement('div');
+                menuItem.className = 'context-menu-item';
+                menuItem.innerHTML = action.label;
+                menuItem.onclick = () => {
+                    action.action();
+                    menu.remove();
+                };
+                menu.appendChild(menuItem);
+            });
+
+            document.body.appendChild(menu);
+
+            document.addEventListener('click', function removeMenu() {
+                menu.remove();
+                document.removeEventListener('click', removeMenu);
+            });
+        }
+
+        const dropZone = document.querySelector('.drop-zone-overlay');
+
+        document.body.addEventListener('dragenter', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            dropZone.classList.add('active');
+        });
+
+        document.body.addEventListener('dragleave', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            if (e.target === document.body || e.target === dropZone) {
+                dropZone.classList.remove('active');
+            }
+        });
+
+        document.body.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+        });
+
+        document.body.addEventListener('drop', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            dropZone.classList.remove('active');
+            uploadFiles(e.dataTransfer.files);
+        });
+
+        function uploadFiles(files) {
+            const currentDir = currentPath;
+            const progress = document.getElementById('uploadProgress');
+            
+            Array.from(files).forEach(file => {
+                const progressItem = document.createElement('div');
+                progressItem.className = 'progress-item';
+                progressItem.innerHTML = `
+                    <div class="d-flex align-items-center gap-2">
+                        <i class="fas fa-spinner fa-spin"></i>
+                        <div>
+                            <div>${file.name}</div>
+                            <small class="text-secondary">Uploading...</small>
+                        </div>
+                    </div>
+                `;
+                progress.appendChild(progressItem);
+                
+                const formData = new FormData();
+                formData.append('file', file);
+                
+                fetch('/api/upload', {
+                    method: 'POST',
+                    headers: {
+                        'X-Upload-Path': currentDir
+                    },
+                    body: formData
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    progressItem.className = 'progress-item success';
+                    progressItem.innerHTML = `
+                        <div class="d-flex align-items-center gap-2">
+                            <i class="fas fa-check-circle text-success"></i>
+                            <div>
+                                <div>${file.name}</div>
+                                <small class="text-success">Upload complete</small>
+                            </div>
+                        </div>
+                    `;
+                    setTimeout(() => progressItem.remove(), 3000);
+                    loadDirectory(currentDir);
+                })
+                .catch(error => {
+                    progressItem.className = 'progress-item error';
+                    progressItem.innerHTML = `
+                        <div class="d-flex align-items-center gap-2">
+                            <i class="fas fa-exclamation-circle text-danger"></i>
+                            <div>
+                                <div>${file.name}</div>
+                                <small class="text-danger">Error: ${error.message}</small>
+                            </div>
+                        </div>
+                    `;
+                });
+            });
+        }
+
+        document.getElementById('fileInput').addEventListener('change', (e) => {
+            uploadFiles(e.target.files);
+        });
+
+        function showItemMenu(event, itemName, isDir, path) {
+            event.preventDefault();
+            // Remove any existing menus
+            const existingMenu = document.querySelector('.context-menu');
+            if (existingMenu) {
+                existingMenu.remove();
+            }
+
+            const menu = document.createElement('div');
+            menu.className = 'context-menu';
+            
+            // Position the menu relative to the clicked button
+            const rect = event.target.getBoundingClientRect();
+            const x = rect.right + window.scrollX;
+            const y = rect.top + window.scrollY;
+            
+            // Add the menu to the document to get its size
+            menu.style.visibility = 'hidden';
+            document.body.appendChild(menu);
+            const menuRect = menu.getBoundingClientRect();
+            
+            // Adjust position if menu would go off screen
+            const windowWidth = window.innerWidth + window.scrollX;
+            const windowHeight = window.innerHeight + window.scrollY;
+            
+            let finalX = x;
+            let finalY = y;
+            
+            if (x + menuRect.width > windowWidth) {
+                finalX = x - menuRect.width - 10;
+            }
+            
+            if (y + menuRect.height > windowHeight) {
+                finalY = windowHeight - menuRect.height - 10;
+            }
+            
+            menu.style.left = `${finalX}px`;
+            menu.style.top = `${finalY}px`;
+            menu.style.visibility = 'visible';
+
+            const actions = [
+                {
+                    label: '<i class="fas fa-info-circle"></i> Info',
+                    action: () => {
+                        const itemPath = path === '.' ? itemName : `${path}/${itemName}`;
+                        showItemInfo(itemPath);
+                    }
+                }
+            ];
+
+            if (isDir) {
+                actions.push({
+                    label: '<i class="fas fa-download"></i> Download as ZIP',
+                    action: () => {
+                        const folderPath = path === '.' ? itemName : `${path}/${itemName}`;
+                        window.location.href = `/api/download-folder/${folderPath}`;
+                    }
+                });
+            } else {
+                actions.push({
+                    label: '<i class="fas fa-download"></i> Download',
+                    action: () => {
+                        const link = document.createElement('a');
+                        link.href = path === '.' ? itemName : `${path}/${itemName}`;
+                        link.download = itemName;
+                        link.click();
+                    }
+                });
+            }
+
+            actions.forEach(action => {
+                const menuItem = document.createElement('div');
+                menuItem.className = 'context-menu-item';
+                menuItem.innerHTML = action.label;
+                menuItem.onclick = () => {
+                    action.action();
+                    menu.remove();
+                };
+                menu.appendChild(menuItem);
+            });
+
+            document.body.appendChild(menu);
+
+            document.addEventListener('click', function removeMenu() {
+                menu.remove();
+                document.removeEventListener('click', removeMenu);
+            });
+        }
+
+        function showItemInfo(itemPath) {
+            // Ensure the path is properly encoded
+            const encodedPath = itemPath === '.' ? '' : 
+                itemPath.split('/').map(part => encodeURIComponent(part)).join('/');
+            fetch(`/api/info/${encodedPath}`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    return response.json();
+                })
+                .then(info => {
+                    const modalContainer = document.getElementById('modalContainer');
+                    modalContainer.innerHTML = `
+                        <div class="modal-overlay" onclick="closeModal()"></div>
+                        <div class="info-modal">
+                            <h5 class="mb-3">${info.name}</h5>
+                            <div class="mb-2">
+                                <strong>Type:</strong> ${info.is_dir ? 'Folder' : 'File'}
+                            </div>
+                            ${info.is_dir ? `
+                                <div class="mb-2">
+                                    <strong>Files:</strong> ${info.file_count}
+                                </div>
+                                <div class="mb-2">
+                                    <strong>Total Size:</strong> ${formatSize(info.total_size)}
+                                </div>
+                            ` : `
+                                <div class="mb-2">
+                                    <strong>Size:</strong> ${formatSize(info.size)}
+                                </div>
+                            `}
+                            <div class="mb-2">
+                                <strong>Created:</strong> ${info.created}
+                            </div>
+                            <div class="mb-2">
+                                <strong>Modified:</strong> ${info.modified}
+                            </div>
+                            <button class="btn btn-secondary mt-3" onclick="closeModal()">Close</button>
+                        </div>
+                    `;
+                })
+                .catch(error => {
+                    console.error('Error fetching info:', error);
+                    const modalContainer = document.getElementById('modalContainer');
+                    modalContainer.innerHTML = `
+                        <div class="modal-overlay" onclick="closeModal()"></div>
+                        <div class="info-modal">
+                            <h5 class="text-danger mb-3">Error</h5>
+                            <p>Could not fetch item information: ${error.message}</p>
+                            <button class="btn btn-secondary mt-3" onclick="closeModal()">Close</button>
+                        </div>
+                    `;
+                });
+        }
+
+        function closeModal() {
+            const modalContainer = document.getElementById('modalContainer');
+            modalContainer.innerHTML = '';
+        }
+
+        loadDirectory('.');
+    </script>
+</body>
+</html> 
