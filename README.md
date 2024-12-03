@@ -25,9 +25,17 @@ A modern, feature-rich file sharing server with a beautiful web interface. Share
 
 ### Option 1: Download and Run (Recommended)
 
-1. Download the latest `LocalDrop.exe` from the dist folder
+1. Download the latest `LocalDrop.exe` from the [Releases](https://github.com/AdityaAdaki21/LocalDrop/releases) page
 
-2. Using the Executable:
+2. When you try to run the executable, you may see a Windows Security warning:
+   - "Windows protected your PC" message will appear
+   - This is normal for unsigned executables
+   - To run anyway:
+     1. Click "More info"
+     2. Click "Run anyway"
+     > Note: This warning appears because the app isn't signed with a Microsoft certificate. The source code is open and available for review.
+
+3. Using the Executable:
    - **Standalone Use**: 
      - Place `LocalDrop.exe` in any folder you want to share
      - Double-click to run - it will share the folder it's placed in
@@ -45,7 +53,16 @@ A modern, feature-rich file sharing server with a beautiful web interface. Share
    - Other devices can connect using the displayed network URL
    - The shared folder will be the one containing the exe (or specified in shortcut)
 
-4. Security Notes:
+### Security Notes 🔒
+
+1. **Windows SmartScreen Warning**:
+   - This warning appears because the executable isn't digitally signed
+   - The application is open-source, and you can:
+     - Review the source code
+     - Build it yourself from source
+     - Run from source code directly
+
+2. **Safe Usage**:
    - Only run LocalDrop on trusted networks (like your home network)
    - Anyone on your network can access the shared folder
    - Close the console window to stop sharing
