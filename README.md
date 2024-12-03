@@ -46,7 +46,7 @@ A modern, feature-rich file sharing server with a beautiful web interface. Share
    - The shared folder will be the one containing the exe (or specified in shortcut)
 
 4. Security Notes:
-   - Only run LocalDrop on trusted networks (like your home network)
+   - Only run LocalDrop on home network (trusted networks )
    - Anyone on your network can access the shared folder
    - Close the console window to stop sharing
 
