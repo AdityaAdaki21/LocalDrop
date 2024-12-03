@@ -29,7 +29,18 @@ def get_local_ip():
     except Exception:
         return "127.0.0.1"
 
+# Add security check for path traversal attempts
+def is_safe_path(base_path, requested_path):
+    # Convert to absolute paths
+    base_path = os.path.abspath(base_path)
+    requested_path = os.path.abspath(requested_path)
+    # Check if the requested path starts with the base path
+    return requested_path.startswith(base_path)
+
 class FileServerHandler(http.server.SimpleHTTPRequestHandler):
+    def get_folder_name(self):
+        return os.path.basename(os.getcwd()) or "Root"
+
     def do_GET(self):
         # Decode URL-encoded path
         path = unquote(self.path)
@@ -43,6 +54,21 @@ class FileServerHandler(http.server.SimpleHTTPRequestHandler):
         if self.path.startswith('/api/download-folder/'):
             try:
                 folder_path = unquote(self.path[19:])  # Remove '/api/download-folder/'
+                folder_path = os.path.normpath(folder_path)
+                
+                # Security check
+                if not is_safe_path(os.getcwd(), folder_path):
+                    self.send_error(403, "Access denied")
+                    return
+                
+                if not os.path.exists(folder_path):
+                    self.send_error(404, "Folder not found")
+                    return
+                
+                if not os.path.isdir(folder_path):
+                    self.send_error(400, "Path is not a directory")
+                    return
+
                 memory_file = io.BytesIO()
                 
                 with zipfile.ZipFile(memory_file, 'w', zipfile.ZIP_DEFLATED) as zf:
@@ -50,7 +76,11 @@ class FileServerHandler(http.server.SimpleHTTPRequestHandler):
                         for file in files:
                             file_path = os.path.join(root, file)
                             arc_name = os.path.relpath(file_path, folder_path)
-                            zf.write(file_path, arc_name)
+                            try:
+                                zf.write(file_path, arc_name)
+                            except PermissionError:
+                                logger.warning(f"Permission denied for file: {file_path}")
+                                continue
                 
                 memory_file.seek(0)
                 folder_name = os.path.basename(folder_path)
@@ -73,6 +103,12 @@ class FileServerHandler(http.server.SimpleHTTPRequestHandler):
                 item_path = unquote(self.path[9:]).strip('/')
                 # Convert to proper system path
                 item_path = os.path.normpath(item_path)
+                
+                # Security check
+                if not is_safe_path(os.getcwd(), item_path):
+                    self.send_error(403, "Access denied")
+                    return
+                
                 # If path is empty, use current directory
                 if not item_path:
                     item_path = '.'
@@ -83,10 +119,14 @@ class FileServerHandler(http.server.SimpleHTTPRequestHandler):
                     self.send_error(404, f"Path not found: {item_path}")
                     return
                 
-                stats = os.stat(item_path)
+                try:
+                    stats = os.stat(item_path)
+                except PermissionError:
+                    self.send_error(403, "Permission denied")
+                    return
                 
                 info = {
-                    'name': os.path.basename(item_path),
+                    'name': os.path.basename(item_path) or item_path,
                     'size': stats.st_size,
                     'created': datetime.datetime.fromtimestamp(stats.st_ctime).strftime('%Y-%m-%d %H:%M:%S'),
                     'modified': datetime.datetime.fromtimestamp(stats.st_mtime).strftime('%Y-%m-%d %H:%M:%S'),
@@ -100,7 +140,10 @@ class FileServerHandler(http.server.SimpleHTTPRequestHandler):
                     for root, dirs, files in os.walk(item_path):
                         file_count += len(files)
                         for file in files:
-                            total_size += os.path.getsize(os.path.join(root, file))
+                            try:
+                                total_size += os.path.getsize(os.path.join(root, file))
+                            except (PermissionError, OSError):
+                                continue
                     info['file_count'] = file_count
                     info['total_size'] = total_size
                 
@@ -150,9 +193,13 @@ class FileServerHandler(http.server.SimpleHTTPRequestHandler):
                 self.send_header('Content-Type', 'text/html')
                 self.end_headers()
                 
-                # Read and serve the index.html file
+                # Read the index.html file
                 with open('index.html', 'rb') as f:
-                    self.wfile.write(f.read())
+                    html_content = f.read().decode('utf-8')
+                    # Replace the placeholder with actual folder name
+                    folder_name = self.get_folder_name()
+                    html_content = html_content.replace('LocalDrop', folder_name)
+                    self.wfile.write(html_content.encode())
                     
                 logger.debug("Successfully served main HTML page")
                 return

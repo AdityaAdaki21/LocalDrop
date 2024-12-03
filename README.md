@@ -18,7 +18,7 @@ A modern, feature-rich file server with a beautiful web interface. This applicat
 
 ## Requirements
 
-- Python 3.9
+- Python 3.7
 - Required Python packages (see `requirements.txt`)
 - Modern web browser with JavaScript enabled
 
