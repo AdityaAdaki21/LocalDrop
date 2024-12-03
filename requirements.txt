@@ -1,3 +1,6 @@
+# Python version requirement
+python>=3.7
+
 # Core server requirements
 socketserver
 logging
@@ -5,3 +8,16 @@ urllib3>=2.0.0
 
 # For handling file operations
 zipfile38>=0.0.4 
+
+# No external dependencies required - all modules used are from Python standard library:
+# - http.server
+# - socketserver
+# - os
+# - json
+# - urllib.parse
+# - logging
+# - socket
+# - re
+# - zipfile
+# - io
+# - datetime
